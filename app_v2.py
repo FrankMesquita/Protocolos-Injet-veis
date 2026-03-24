@@ -266,7 +266,7 @@ if st.button("Salvar protocolo"):
     }
 
     df_novo = pd.DataFrame([dados])
-    caminho_arquivo = "respostas/protocolos.xlsx"
+    caminho_arquivo = "protocolos.xlsx"
 
     if os.path.exists(caminho_arquivo):
         df_existente = pd.read_excel(caminho_arquivo)
