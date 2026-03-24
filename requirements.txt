@@ -1,0 +1,125 @@
+import streamlit as st
+import pandas as pd
+import os
+from datetime import datetime
+
+# =======================
+# CONFIGURAÇÃO DA PÁGINA
+# =======================
+st.set_page_config(
+    page_title="Protocolos de Injetáveis – Hospital Vascular + Frank Mesquita",
+    page_icon="💉",
+    layout="wide"
+)
+
+# =======================
+# LOGO + CABEÇALHO
+# =======================
+st.image("assets/logo.png", width=200)
+
+st.markdown("""
+<style>
+    body {
+        background-color: #FFFFFF;
+        color: #2C3E50;
+    }
+    .titulo {
+        font-size: 32px;
+        font-weight: bold;
+        color: #1B4F7C;
+        margin-bottom: -10px;
+    }
+    .subtitulo {
+        font-size: 20px;
+        color: #A8C5DD;
+    }
+    .bloco {
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #A8C5DD;
+        margin-bottom: 20px;
+        background-color: #F7FBFF;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+st.markdown('<p class="titulo">Formulário de Criação de Protocolos</p>', unsafe_allow_html=True)
+st.markdown('<p class="subtitulo">Hospital Vascular de Londrina + Frank Mesquita</p>', unsafe_allow_html=True)
+st.write("---")
+
+# =======================
+# FORMULÁRIO
+# =======================
+
+st.markdown('<div class="bloco">', unsafe_allow_html=True)
+st.header("1. Identificação do Protocolo")
+nome_protocolo = st.text_input("Nome do Protocolo")
+objetivo = st.text_area("Objetivo Clínico")
+publico = st.text_area("Público-Alvo")
+fase = st.selectbox("Fase Clínica", [
+    "Celular", "Consolidação", "Performance",
+    "Pré-operatório", "Pós-operatório", "Manutenção"
+])
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="bloco">', unsafe_allow_html=True)
+st.header("2. Composição Farmacológica")
+ativos = st.text_area("Descreva os ativos, doses, via e volumes (um por linha)")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="bloco">', unsafe_allow_html=True)
+st.header("3. Estrutura de Aplicação")
+sessoes = st.number_input("Quantidade de sessões", min_value=1, max_value=100, value=1)
+frequencia = st.text_input("Frequência das aplicações (ex: semanal, quinzenal)")
+intervalo = st.text_input("Intervalo mínimo entre sessões")
+duracao_total = st.text_input("Duração total (em semanas ou meses)")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="bloco">', unsafe_allow_html=True)
+st.header("4. Orientações ao Paciente")
+preparo = st.text_area("Preparação do paciente antes da sessão")
+pos = st.text_area("Cuidados após a sessão")
+reacoes = st.text_area("Reações esperadas")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('<div class="bloco">', unsafe_allow_html=True)
+st.header("5. Observações Adicionais")
+observacoes = st.text_area("Observações gerais ou orientações adicionais")
+st.markdown('</div>', unsafe_allow_html=True)
+
+# =======================
+# SALVAR AS RESPOSTAS
+# =======================
+
+if st.button("Salvar Protocolo"):
+    data = {
+        "nome_protocolo": nome_protocolo,
+        "objetivo": objetivo,
+        "publico": publico,
+        "fase": fase,
+        "ativos": ativos,
+        "sessoes": sessoes,
+        "frequencia": frequencia,
+        "intervalo": intervalo,
+        "duracao_total": duracao_total,
+        "preparo": preparo,
+        "pos": pos,
+        "reacoes": reacoes,
+        "observacoes": observacoes,
+        "data_envio": datetime.now().strftime("%d/%m/%Y %H:%M")
+    }
+
+    df = pd.DataFrame([data])
+
+    os.makedirs("respostas", exist_ok=True)
+
+    caminho = "respostas/protocolos.xlsx"
+    if os.path.exists(caminho):
+        df_antigo = pd.read_excel(caminho)
+        df_final = pd.concat([df_antigo, df], ignore_index=True)
+        df_final.to_excel(caminho, index=False)
+    else:
+        df.to_excel(caminho, index=False)
+
+    st.success("Protocolo salvo com sucesso!")
+    st.balloons()
